@@ -1,0 +1,6 @@
+movies_admin/.env
+.idea/*
+movies_admin/config/__pycache__/*
+movies_admin/movies/__pycache__/*
+movies_admin/movies/migrations/__pycache__/*
+movies_admin/config/.env
