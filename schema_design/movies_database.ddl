@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS content.person_film_work (
     person_id uuid NOT NULL,
     role TEXT NOT NULL,
     created timestamp with time zone,
-    FOREIGN KEY (film_work_id) REFERENCES film_work(film_work_id),
-    FOREIGN KEY (person_id) REFERENCES person(person_id)
+    FOREIGN KEY (film_work_id) REFERENCES content.film_work(id),
+    FOREIGN KEY (person_id) REFERENCES content.person(id)
 );
 
 -- Устанавливаем расширения для генерации UUID
