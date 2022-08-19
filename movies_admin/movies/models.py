@@ -95,4 +95,3 @@ class PersonFilmwork(UUIDMixin):
         constraints = [
             models.UniqueConstraint(fields=['person_id', 'film_work_id', 'role'], name="%(app_label)s_%(class)s_unique")
         ]
-
