@@ -49,10 +49,6 @@ class FilmWork(UUIDMixin, TimeStampedMixin):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     genres = models.ManyToManyField(Genre, through='GenreFilmwork')
-    certificate = models.CharField(_('certificate'), max_length=512, blank=True)
-    file_path = models.FileField(_('file'), blank=True, null=True, upload_to='movies/')
-
-    # ....
 
     def __str__(self):
         return self.title
@@ -70,16 +66,13 @@ class GenreFilmwork(UUIDMixin):
 
     class Meta:
         db_table = "content\".\"genre_film_work"
-
-
-class Gender(models.TextChoices):
-    MALE = 'male', _('male')
-    FEMALE = 'female', _('female')
+        constraints = [
+            models.UniqueConstraint(fields=['genre_id', 'film_work_id'], name="%(app_label)s_%(class)s_unique")
+        ]
 
 
 class Person(UUIDMixin, TimeStampedMixin):
     full_name = models.TextField('Fullname')
-    gender = models.TextField(_('gender'), choices=Gender.choices, null=True)
 
     def __str__(self):
         return self.full_name
@@ -98,4 +91,8 @@ class PersonFilmwork(UUIDMixin):
 
     class Meta:
         db_table = "content\".\"person_film_work"
+
+        constraints = [
+            models.UniqueConstraint(fields=['person_id', 'film_work_id', 'role'], name="%(app_label)s_%(class)s_unique")
+        ]
 
