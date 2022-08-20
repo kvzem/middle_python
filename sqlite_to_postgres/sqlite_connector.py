@@ -1,7 +1,8 @@
 import sqlite3
 from contextlib import contextmanager
-import db_entities
+import os
 from sqlite_data_converter import *
+
 
 @contextmanager
 def conn_context(db_path: str):
@@ -12,7 +13,7 @@ def conn_context(db_path: str):
 
 
 # Задаём путь к файлу с базой данных
-db_path = 'db.sqlite'
+db_path = os.path.join(os.path.dirname(__file__), 'db.sqlite')
 PAGE_SIZE = 5000
 
 

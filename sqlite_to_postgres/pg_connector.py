@@ -1,16 +1,19 @@
 import contextlib
 import psycopg2
+import os
 from psycopg2.extras import execute_batch
 from db_entities import Person, FilmWork, Genre, PersonFilmWork, GenreFilmWork
 from datetime import datetime
+from dotenv import load_dotenv
 
 
+load_dotenv()
 dsn = {
-    'dbname': 'movies_database',
-    'user': 'app',
-    'password': '123qwe',
-    'host': 'localhost',
-    'port': 5435,
+    'dbname': os.environ.get('DB_NAME'),
+    'user': os.environ.get('DB_USER'),
+    'password': os.environ.get('DB_PASSWORD'),
+    'host': os.environ.get('DB_HOST', '127.0.0.1'),
+    'port': os.environ.get('DB_PORT', 5432),
     'options': '-c search_path=content',
 }
 PAGE_SIZE = 5000
@@ -32,7 +35,6 @@ def write_film_work(film_works):
         data = [(item.id, item.title, item.description, item.creation_date,
                  item.rating, item.type, item.created, item.modified) for item in film_works]
         execute_batch(cur, query, data, page_size=PAGE_SIZE)
-        conn.commit()
 
 
 def write_genre(genres):
@@ -41,7 +43,6 @@ def write_genre(genres):
                               VALUES (%s, %s, %s, %s, %s) ON CONFLICT do nothing"""
         data = [(item.id, item.name, item.description, item.created, item.modified) for item in genres]
         execute_batch(cur, query, data, page_size=PAGE_SIZE)
-        conn.commit()
 
 
 def write_genre_film_work(genre_film_work):
@@ -50,7 +51,6 @@ def write_genre_film_work(genre_film_work):
                                         VALUES (%s, %s, %s, %s) ON CONFLICT do nothing"""
         data = [(item.id, item.genre_id, item.film_work_id, item.created) for item in genre_film_work]
         execute_batch(cur, query, data, page_size=PAGE_SIZE)
-        conn.commit()
 
 
 def write_person_film_work(genre_film_work):
@@ -59,7 +59,6 @@ def write_person_film_work(genre_film_work):
                                          VALUES (%s, %s, %s, %s, %s) ON CONFLICT do nothing"""
         data = [(item.id, item.person_id, item.film_work_id, item.role, item.created) for item in genre_film_work]
         execute_batch(cur, query, data, page_size=PAGE_SIZE)
-        conn.commit()
 
 
 def convert_datetime(dt):
