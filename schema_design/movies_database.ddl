@@ -29,8 +29,8 @@ CREATE TABLE IF NOT EXISTS content.person_film_work (
     person_id uuid NOT NULL,
     role TEXT NOT NULL,
     created timestamp with time zone,
-    FOREIGN KEY (film_work_id) REFERENCES content.film_work(id),
-    FOREIGN KEY (person_id) REFERENCES content.person(id)
+    FOREIGN KEY (film_work_id) REFERENCES content.film_work(id) ON DELETE CASCADE,
+    FOREIGN KEY (person_id) REFERENCES content.person(id) ON DELETE CASCADE
 );
 
 ALTER TABLE content.person_film_work ADD CONSTRAINT unq_person_film_role_constraint UNIQUE (person_id, film_work_id, role);
@@ -50,8 +50,8 @@ CREATE TABLE IF NOT EXISTS content.genre_film_work (
     genre_id uuid NOT NULL,
     film_work_id uuid NOT NULL,
     created timestamp with time zone,
-    FOREIGN KEY (genre_id) REFERENCES content.genre(id),
-    FOREIGN KEY (film_work_id) REFERENCES content.film_work(id)
+    FOREIGN KEY (genre_id) REFERENCES content.genre(id) ON DELETE CASCADE,
+    FOREIGN KEY (film_work_id) REFERENCES content.film_work(id) ON DELETE CASCADE
 );
 
 ALTER TABLE content.genre_film_work ADD CONSTRAINT unq_genre_film_work_constraint UNIQUE (film_work_id, genre_id);
