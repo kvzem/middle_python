@@ -23,9 +23,14 @@ class PersonFilmWorkInline(admin.TabularInline):
 @admin.register(FilmWork)
 class FilmWorkAdmin(admin.ModelAdmin):
     inlines = (GenreFilmworkInline, PersonFilmWorkInline,)
-    list_display = ('title', 'type', 'creation_date', 'rating',)
+    list_display = ('title', 'type', 'creation_date', 'rating', 'get_genres',)
     list_filter = ('type',)
     search_fields = ('title', 'description', 'id')
+
+    def get_genres(self, obj):
+        return ', '.join([genre.name for genre in obj.genres.all()])
+
+    get_genres.short_description = 'Жанры фильма'
 
 
 @admin.register(Person)
