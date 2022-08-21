@@ -9,7 +9,6 @@ class TimeStampedMixin(models.Model):
     modified = models.DateTimeField(auto_now=True)
 
     class Meta:
-        # Этот параметр указывает Django, что этот класс не является представлением таблицы
         abstract = True
 
 
@@ -21,18 +20,14 @@ class UUIDMixin(models.Model):
 
 
 class Genre(UUIDMixin, TimeStampedMixin):
-    # Первым аргументом обычно идёт человекочитаемое название поля
     name = models.CharField(_('name'), max_length=255)
-    # blank=True делает поле необязательным для заполнения.
     description = models.TextField(_('description'), blank=True)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        # Ваши таблицы находятся в нестандартной схеме. Это нужно указать в классе модели
         db_table = "content\".\"genre"
-        # Следующие два поля отвечают за название модели в интерфейсе
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
@@ -60,8 +55,8 @@ class FilmWork(UUIDMixin, TimeStampedMixin):
 
 
 class GenreFilmwork(UUIDMixin):
-    film_work = models.ForeignKey('Filmwork', on_delete=models.CASCADE)
-    genre = models.ForeignKey('Genre', on_delete=models.CASCADE)
+    film_work = models.ForeignKey(FilmWork, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -84,9 +79,14 @@ class Person(UUIDMixin, TimeStampedMixin):
 
 
 class PersonFilmwork(UUIDMixin):
-    film_work = models.ForeignKey('Filmwork', on_delete=models.CASCADE)
-    person = models.ForeignKey('Person', on_delete=models.CASCADE)
-    role = models.TextField(_('role'), null=True)
+    class Role(models.TextChoices):
+        ACTOR = 'ACT', _('actor')
+        WRITER = 'WR', _('writer')
+        DIRECTOR = 'DIR', _('director')
+
+    film_work = models.ForeignKey(FilmWork, on_delete=models.CASCADE)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    role = models.TextField(_('role'), choices=Role.choices, null=True)
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
