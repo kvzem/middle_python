@@ -1,6 +1,6 @@
 import sqlite3
 from contextlib import contextmanager
-from sqlite.sqlite_data_converter import *
+from sqlite.sqlite_converter import *
 
 
 @contextmanager
@@ -27,29 +27,27 @@ class SQLiteConnector:
                                  .format(table=table, limit=limit, offset=offset))
 
     def read_person(self):
-        return self.get_with_limit("person", sqlite_person_to_dataclass)
+        return self.read_next_part("person", sqlite_person_to_dataclass)
 
     def read_film_work(self):
-        return self.get_with_limit("film_work", sqlite_film_work_to_dataclass)
+        return self.read_next_part("film_work", sqlite_film_work_to_dataclass)
 
     def read_genre(self):
-        return self.get_with_limit("genre", sqlite_genre_to_dataclass)
+        return self.read_next_part("genre", sqlite_genre_to_dataclass)
 
     def read_person_film_work(self):
-        return self.get_with_limit("person_film_work", sqlite_person_film_work_to_dataclass)
+        return self.read_next_part("person_film_work", sqlite_person_film_work_to_dataclass)
 
     def read_genre_film_work(self):
-        return self.get_with_limit("genre_film_work", sqlite_genre_film_work_to_dataclass)
+        return self.read_next_part("genre_film_work", sqlite_genre_film_work_to_dataclass)
 
-    def get_with_limit(self, table, convertion_method):
+    def read_next_part(self, table, convertion_method):
         offset = 0
-        result = []
         while True:
             part = self.read_all_from_table(table, self.page_size, offset)
             if not part:
                 break
             else:
                 converted = [convertion_method(item) for item in part]
-                result.extend(converted)
                 offset = offset + self.page_size
-        return result
+                yield converted

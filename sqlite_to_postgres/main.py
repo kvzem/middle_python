@@ -17,19 +17,20 @@ if __name__ == '__main__':
         'options': '-c search_path=content',
     }
     with contextlib.closing(psycopg2.connect(**dsn)) as conn:
-        pg_connector = PostgresConnector(connection=conn)
+        pg_connector = PostgresConnector(connection=conn, page_size=1000)
 
         sqlite_db_path = os.path.join(os.path.dirname(__file__), 'db.sqlite')
         with sqlite_connection_context(sqlite_db_path) as conn:
-            sqlite_connector = SQLiteConnector(conn)
-            film_works = sqlite_connector.read_film_work()
-            people = sqlite_connector.read_person()
-            genres = sqlite_connector.read_genre()
-            genre_film_work = sqlite_connector.read_genre_film_work()
-            person_film_work = sqlite_connector.read_person_film_work()
+            sqlite_connector = SQLiteConnector(conn, page_size=1000)
 
-            pg_connector.write_person(people)
-            pg_connector.write_film_work(film_works)
-            pg_connector.write_genre(genres)
-            pg_connector.write_genre_film_work(genre_film_work)
-            pg_connector.write_person_film_work(person_film_work)
+            generators_mapping = {
+                sqlite_connector.read_film_work: pg_connector.write_film_work,
+                sqlite_connector.read_person: pg_connector.write_person,
+                sqlite_connector.read_genre: pg_connector.write_genre,
+                sqlite_connector.read_person_film_work: pg_connector.write_person_film_work,
+                sqlite_connector.read_genre_film_work: pg_connector.write_genre_film_work,
+            }
+
+            for (sqlite_reader, pg_writer) in generators_mapping.items():
+                for part in sqlite_reader():
+                    pg_writer(part)
