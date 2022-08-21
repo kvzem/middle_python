@@ -46,10 +46,17 @@ class PostgresConnector:
 
     def read_table_and_convert(self, table, convertion_func):
         with self.connection.cursor() as cur:
-            cur.execute(f"SELECT * FROM {table} ORDER BY id".format(table=table))
-            sql_rows = cur.fetchall()
-            result = [convertion_func(row) for row in sql_rows]
-            return result
+            offset = 0
+            while True:
+                sql = f"SELECT * FROM {table} ORDER BY id LIMIT {self.page_size} OFFSET {offset}"
+                cur.execute(sql)
+                part = cur.fetchmany(self.page_size)
+                if not part:
+                    break
+                else:
+                    converted = [convertion_func(item) for item in part]
+                    offset = offset + self.page_size
+                    yield converted
 
     def read_person(self):
         return self.read_table_and_convert('content.person', pg_person_to_dataclass)
